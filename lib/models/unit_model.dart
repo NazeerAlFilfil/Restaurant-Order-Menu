@@ -1,4 +1,5 @@
 /// Unit Model (Large, Medium, Small, etc...)
+library;
 
 /// Takes Label & Price
 /// image path & filled image path are optional, but recommended

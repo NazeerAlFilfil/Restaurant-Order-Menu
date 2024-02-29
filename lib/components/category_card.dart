@@ -27,6 +27,7 @@ class CategoryCard extends StatelessWidget {
           padding: padding,
           child: Card(
             margin: EdgeInsets.zero,
+            clipBehavior: Clip.hardEdge,
             child: InkWell(
               onTap: () => onTab(category.items),
               child: GridTile(

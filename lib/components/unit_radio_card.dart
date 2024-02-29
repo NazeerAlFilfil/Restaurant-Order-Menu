@@ -22,6 +22,7 @@ class _UnitRadioCardState extends State<UnitRadioCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
+      clipBehavior: Clip.hardEdge,
       child: ListTile(
         leading: widget.unit.imagePath != null
             ? Image(

@@ -1,4 +1,5 @@
 /// Option Model (Tomato, Cheese, etc...)
+library;
 
 /// Takes Label
 /// image path is recommended, price is optional

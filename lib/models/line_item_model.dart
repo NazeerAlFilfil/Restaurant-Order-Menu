@@ -66,7 +66,7 @@ class LineItem {
     // If the level we picked is higher, then we get the option price (if it is null, meaning free, we get 0)
     // Otherwise we get 0 (in case we got lower level than default)
     for (Option option in pickedOptions.keys) {
-      optionsPrice += option.defaultLevel! < pickedOptions[option]! ? (option.price ?? 0.0) : 0.0;
+      optionsPrice += option.defaultLevel < pickedOptions[option]! ? (option.price ?? 0.0) : 0.0;
     }
 
     return optionsPrice;

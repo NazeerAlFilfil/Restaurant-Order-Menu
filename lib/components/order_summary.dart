@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../models/line_item_model.dart';
@@ -202,22 +203,29 @@ class _OrderSummaryState extends State<OrderSummary> {
         ),
 
         // Confirm Button
-        ElevatedButton(
-          style: ButtonStyle(
-            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(0),
+        GestureDetector(
+          // TODO: Make double tabs immediately go to check out
+          // TODO: Make Single tab show alert box that asks you to (cancel, confirm, confirm & checkout)
+          onDoubleTap: () {
+            if (kDebugMode) print('double tabbed');
+          },
+          child: ElevatedButton(
+            style: ButtonStyle(
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(0),
+                ),
+              ),
+              padding: MaterialStateProperty.all(
+                const EdgeInsets.symmetric(vertical: 12.0),
               ),
             ),
-            padding: MaterialStateProperty.all(
-              const EdgeInsets.symmetric(vertical: 12.0),
+            onPressed: _confirmOrder,
+            child: Container(
+              width: double.infinity,
+              alignment: Alignment.center,
+              child: const Text('Confirm Order'),
             ),
-          ),
-          onPressed: _confirmOrder,
-          child: Container(
-            width: double.infinity,
-            alignment: Alignment.center,
-            child: const Text('Confirm Order'),
           ),
         ),
       ],

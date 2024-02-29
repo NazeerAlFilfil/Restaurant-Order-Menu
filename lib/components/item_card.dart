@@ -73,16 +73,19 @@ class ItemCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     // Label
-                    AutoSizeText(
-                      item.label,
-                      style: Theme.of(context).textTheme.titleMedium,
-                      strutStyle: const StrutStyle(
-                        forceStrutHeight: true,
+                    SizedBox(
+                      width: double.infinity,
+                      child: AutoSizeText(
+                        item.label,
+                        style: Theme.of(context).textTheme.titleMedium,
+                        strutStyle: const StrutStyle(
+                          forceStrutHeight: true,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
-
+                    /*
                     const SizedBox(height: 2),
 
                     // Price
@@ -94,7 +97,7 @@ class ItemCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    ),
+                    ),*/
                   ],
                 ),
               ),
