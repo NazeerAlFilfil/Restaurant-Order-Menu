@@ -1,5 +1,25 @@
 
 import 'models/customer.dart';
+import 'models/order types/local models/restaurant_table.dart';
+
+final List<RestaurantTable> tables = [
+  RestaurantTable(id: '1', tableName: 'VIP', numberOfSeats: '8'),
+  RestaurantTable(id: '2', tableName: 'VIP 2', numberOfSeats: '8'),
+  RestaurantTable(id: '3', numberOfSeats: '4'),
+  RestaurantTable(id: '4', numberOfSeats: '4'),
+  RestaurantTable(id: '5', numberOfSeats: '2'),
+  RestaurantTable(id: '6', numberOfSeats: '6'),
+  RestaurantTable(id: '7', numberOfSeats: '5'),
+  RestaurantTable(id: '8', numberOfSeats: '4'),
+  RestaurantTable(id: '9', numberOfSeats: '12'),
+  RestaurantTable(id: '10', tableName: 'Partition 1'),
+  RestaurantTable(id: '11', tableName: 'Partition 2'),
+  RestaurantTable(id: '12', tableName: 'Partition 3'),
+  RestaurantTable(id: '13'),
+  RestaurantTable(id: '14'),
+  RestaurantTable(id: '15'),
+  RestaurantTable(id: '16'),
+];
 
 final List<Customer> customers = [
   Customer(name: 'Aaren', phone: '+966525075799'),

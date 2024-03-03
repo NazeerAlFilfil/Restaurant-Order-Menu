@@ -23,106 +23,151 @@ class TableRadioCard extends StatefulWidget {
 class _TableRadioCardState extends State<TableRadioCard> {
   @override
   Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.hardEdge,
-      child: ListTile(
-        onTap: () => widget.onChange(widget.table.id),
-        dense: true,
-        visualDensity: VisualDensity.compact,
-        titleAlignment: ListTileTitleAlignment.center,
-        contentPadding: EdgeInsets.zero,
-        horizontalTitleGap: 0,
-        minVerticalPadding: 0,
-        minLeadingWidth: 0,
-        selected: widget.table.id == widget.groupValue,
-        selectedTileColor: Theme.of(context).colorScheme.primary.withOpacity(0.15),
-        title: Column(
-          mainAxisAlignment:
-          MainAxisAlignment.spaceEvenly,
+    bool isSelected = widget.table.id == widget.groupValue;
+    Color primaryColor = Theme.of(context).colorScheme.primary;
+    Color surfaceColor = Theme.of(context).colorScheme.surface;
+
+    //TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
+    //textStyle?.color = surfaceColor;
+
+    return Tooltip(
+      richMessage: WidgetSpan(
+        style: Theme.of(context).tooltipTheme.textStyle,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                const Tooltip(
-                  message: 'Table Number',
-                  child: Icon(Icons.table_restaurant),
+                Row(
+                  children: <Widget>[
+                    Icon(
+                      Icons.table_bar,
+                      color: surfaceColor,
+                      size: 20.0,
+                    ),
+                    const SizedBox(width: 4.0),
+                    Text(
+                      'Table Number: ',
+                      style: TextStyle(fontSize: 11.0, color: surfaceColor),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8.0),
-                AutoSizeText(
-                  widget.table.id,
-                  maxLines: 1,
+                Row(
+                  children: <Widget>[
+                    Icon(
+                      Icons.label_important,
+                      color: surfaceColor,
+                      size: 20.0,
+                    ),
+                    const SizedBox(width: 4.0),
+                    Text(
+                      'Name: ',
+                      style: TextStyle(fontSize: 11.0, color: surfaceColor),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    Icon(
+                      Icons.event_seat,
+                      color: surfaceColor,
+                      size: 20.0,
+                    ),
+                    const SizedBox(width: 4.0),
+                    Text(
+                      'Seats: ',
+                      style: TextStyle(fontSize: 11.0, color: surfaceColor),
+                    ),
+                  ],
                 ),
               ],
             ),
-            if (widget.table.numberOfSeats != null)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  const Tooltip(
-                    message: 'Number of Seats',
-                    child: Icon(Icons.chair_alt),
-                  ),
-                  const SizedBox(width: 8.0),
-                  AutoSizeText(
-                    widget.table.numberOfSeats!,
-                    maxLines: 1,
-                  ),
-                ],
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                Text(
+                  widget.table.id,
+                  style: TextStyle(fontSize: 11.0, color: surfaceColor),
+                ),
+                Text(
+                  widget.table.tableName ?? '-',
+                  style: TextStyle(fontSize: 11.0, color: surfaceColor),
+                ),
+                Text(
+                  widget.table.numberOfSeats ?? '-',
+                  style: TextStyle(fontSize: 11.0, color: surfaceColor),
+                ),
+              ],
+            ),
           ],
+        ),
+      ),
+      child: Card(
+        elevation: 0,
+        clipBehavior: Clip.hardEdge,
+        color: isSelected ? primaryColor.withOpacity(0.15) : Colors.transparent,
+        margin: EdgeInsets.zero,
+        child: InkWell(
+          onTap: () => widget.onChange(widget.table.id),
+          splashColor: primaryColor.withOpacity(0.15),
+          highlightColor: primaryColor.withOpacity(0.10),
+          child: Column(
+            children: <Widget>[
+              widget.table.tableName != null
+                  ? AutoSizeText(
+                      widget.table.tableName!,
+                      maxLines: 1,
+                      style: isSelected ? TextStyle(color: primaryColor) : null,
+                    )
+                  : const Text(''),
+              Expanded(
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Container(
+                    alignment: Alignment.center,
+                    margin: const EdgeInsets.symmetric(vertical: 4.0),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color:
+                            isSelected ? primaryColor : const Color(0xFF000000),
+                        width: 5.0,
+                      ),
+                    ),
+                    child: Text(
+                      widget.table.id,
+                      maxLines: 1,
+                      style: isSelected ? TextStyle(color: primaryColor) : null,
+                    ),
+                  ),
+                ),
+              ),
+              widget.table.numberOfSeats != null
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Icon(
+                          Icons.event_seat,
+                          color: isSelected ? primaryColor : null,
+                        ),
+                        //const Text(': '),
+                        const SizedBox(width: 8.0),
+                        AutoSizeText(
+                          widget.table.numberOfSeats!,
+                          maxLines: 1,
+                          style: isSelected
+                              ? TextStyle(color: primaryColor)
+                              : null,
+                        ),
+                      ],
+                    )
+                  : const Text(''),
+            ],
+          ),
         ),
       ),
     );
   }
 }
-
-/*ChoiceChip(
-                              //color: Colors.blue,
-                              backgroundColor: Colors.transparent,
-                              labelPadding: EdgeInsets.zero,
-                              selected: (index + 1) == tableIndex,
-                              onSelected: (selected) {
-                                if (selected) {
-                                  setLocalState(() {
-                                    tableIndex = (index + 1);
-                                  });
-                                  setState(() {
-                                    tableIndex;
-                                  });
-                                }
-                              },
-                              label: Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      const Tooltip(
-                                        message: 'Table Number',
-                                        child: Icon(Icons.table_restaurant),
-                                      ),
-                                      const SizedBox(width: 8.0),
-                                      AutoSizeText(
-                                        '${index + 1}',
-                                        maxLines: 1,
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      const Tooltip(
-                                        message: 'Number of Seats',
-                                        child: Icon(Icons.chair_alt),
-                                      ),
-                                      const SizedBox(width: 8.0),
-                                      AutoSizeText(
-                                        '4',
-                                        maxLines: 1,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            );*/

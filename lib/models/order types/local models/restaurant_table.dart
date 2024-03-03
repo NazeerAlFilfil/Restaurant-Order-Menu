@@ -1,8 +1,11 @@
 class RestaurantTable {
-  String id;
-  String? numberOfSeats;
+  final String id;
+  final String? tableName;
+  final String? numberOfSeats;
 
   RestaurantTable({
     required this.id,
+    this.tableName,
+    this.numberOfSeats,
   });
 }

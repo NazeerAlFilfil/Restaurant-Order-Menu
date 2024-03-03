@@ -7,6 +7,7 @@ import 'package:restaurant_order_menu/components/order%20information/order_type_
 import 'package:restaurant_order_menu/components/order%20information/table_radio_card.dart';
 import 'package:restaurant_order_menu/models/customer.dart';
 import 'package:restaurant_order_menu/models/order%20types/local%20models/restaurant_table.dart';
+import 'package:restaurant_order_menu/models/order%20types/selected_order_type.dart';
 import 'package:restaurant_order_menu/models/order_type.dart';
 
 import 'components/category_card.dart';
@@ -36,6 +37,7 @@ class OrderMenu extends StatefulWidget {
 class _OrderMenuState extends State<OrderMenu> {
   late List<ItemCard> itemCards = [];
 
+  SelectedOrderType? selectedOrderType;
   String? selectedOrder;
   String? tableIndex;
 
@@ -175,7 +177,6 @@ class _OrderMenuState extends State<OrderMenu> {
                       icon: const Icon(Icons.table_restaurant),
                       tooltip: 'Order Type',
                     ),
-                    // TODO: Working here~
                     Expanded(
                       child: ListTile(
                         contentPadding:
@@ -187,6 +188,7 @@ class _OrderMenuState extends State<OrderMenu> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
+                        // TODO: Working here~
                         trailing: AutoSizeText(
                           'Type Data',
                           maxLines: 1,
@@ -308,6 +310,35 @@ class _OrderMenuState extends State<OrderMenu> {
     );
   }
 
+  // TODO: Make it so that the groupValue is the selectedOrderType
+  Widget? _getTrailingOrderTypeData() {
+    String type = selectedOrderType!.orderType?.type.toLowerCase() ?? '';
+
+    if (selectedOrderType != null) {
+      if (type == 'local') {
+        return AutoSizeText(
+          selectedOrderType!.localTable?.id ?? '-',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        );
+      } else if (type == 'scheduled') {
+        return AutoSizeText(
+          selectedOrderType!.scheduledDateTime?.toString() ?? '-',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        );
+      } else {
+        return const AutoSizeText(
+          '-',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        );
+      }
+    }
+
+    return null;
+  }
+
   // TODO: Decide if to put the name & phone regardless of what was present before, or only put it when the other field is empty
   /// On selection for customer name
   void _customerNameSelected(Object? customer) {
@@ -407,55 +438,63 @@ class _OrderMenuState extends State<OrderMenu> {
             title: const Text('Choose Order Type'),
             content: StatefulBuilder(
               builder: (BuildContext context, StateSetter setLocalState) {
-                return Container(
-                  constraints: BoxConstraints(
-                    minWidth: MediaQuery.sizeOf(context).width * 0.75,
-                    minHeight: MediaQuery.sizeOf(context).height * 0.75,
-                    maxWidth: MediaQuery.sizeOf(context).width * 0.75,
-                    maxHeight: MediaQuery.sizeOf(context).height * 0.75,
-                  ),
+                double widthPercent = 0.60;
+                double heightPercent = 0.60;
+
+                return SizedBox(
+                  width: MediaQuery.sizeOf(context).width * widthPercent,
+                  height: MediaQuery.sizeOf(context).width * heightPercent,
+
                   child: Column(
                     children: <Widget>[
+                      // Order Types
                       FlexWrapper(
-                          perRow: orderTypes.length,
-                          children: List.generate(orderTypes.length, (index) {
-                            return OrderTypeRadioCard(
-                              orderType: orderTypes[index],
-                              groupValue: selectedOrder,
-                              onChange: (value) {
-                                // Stateful Builder SetState Only update the state locally
-                                // Therefore, nothing happens to the value when you ONLY update it locally
-                                // You must also update it globally (update outside)
-                                setLocalState(() {
-                                  selectedOrder = value;
-                                });
-                              },
-                            );
-                          })),
+                        perRow: orderTypes.length,
+                        children: List.generate(orderTypes.length, (index) {
+                          return OrderTypeRadioCard(
+                            orderType: orderTypes[index],
+                            groupValue: selectedOrder,
+                            onChange: (value) {
+                              // Stateful Builder SetState Only update the state locally
+                              // Therefore, nothing happens to the value when you ONLY update it locally
+                              // You must also update it globally (update outside)
+                              setLocalState(() {
+                                selectedOrder = value;
+                              });
+                            },
+                          );
+                        }),
+                      ),
+
+                      // Horizontal Divider
+                      const Divider(),
+
+                      // Content
                       Expanded(
                         child: GridView.count(
                           clipBehavior: Clip.hardEdge,
                           shrinkWrap: true,
                           crossAxisCount: 6,
-                          childAspectRatio: 1,
-                          padding: const EdgeInsets.all(8),
-                          mainAxisSpacing: 4,
-                          crossAxisSpacing: 4,
-                          children: List.generate(30, (index) {
+                          childAspectRatio: 3 / 4,
+                          //padding: const EdgeInsets.all(8),
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 8,
+                          children: List.generate(tables.length, (index) {
                             return TableRadioCard(
-                              table: RestaurantTable(
-                                id: '${index + 1}',
-                              ),
+                              table: tables[index],
                               groupValue: tableIndex,
                               onChange: (value) {
                                 setLocalState(() {
-                                  tableIndex = '${index + 1}';
+                                  tableIndex = tables[index].id;
                                 });
                               },
                             );
                           }),
                         ),
                       ),
+
+                      // Horizontal Divider
+                      const Divider(),
                     ],
                   ),
                 );
@@ -477,7 +516,6 @@ class _OrderMenuState extends State<OrderMenu> {
             ],
           );
         });
-
 
     // Set state globally outside
     setState(() {
