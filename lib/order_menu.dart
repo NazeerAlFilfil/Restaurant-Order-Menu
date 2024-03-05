@@ -37,9 +37,7 @@ class OrderMenu extends StatefulWidget {
 class _OrderMenuState extends State<OrderMenu> {
   late List<ItemCard> itemCards = [];
 
-  SelectedOrderType? selectedOrderType;
-  String? selectedOrder;
-  String? tableIndex;
+  late SelectedOrderType selectedOrderType = SelectedOrderType();
 
   final TextEditingController customerNameController = TextEditingController();
   final FocusNode customerNameFocusNode = FocusNode();
@@ -184,16 +182,20 @@ class _OrderMenuState extends State<OrderMenu> {
                         horizontalTitleGap: 4.0,
                         onTap: _showOrderTypeDialog,
                         title: AutoSizeText(
-                          selectedOrder ?? 'Select Order Type',
+                          //selectedOrder ?? 'Select Order Type',
+                          selectedOrderType.orderType?.type ??
+                              'Select Order Type',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         // TODO: Working here~
-                        trailing: AutoSizeText(
-                          'Type Data',
+                        trailing: _getTrailingOrderTypeData(),
+                        /*AutoSizeText(
+                          //'Type Data',
+                          selectedOrderType.orderType?.type ?? '-',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                        ),
+                        ),*/
                       ),
                     ),
                   ],
@@ -278,8 +280,9 @@ class _OrderMenuState extends State<OrderMenu> {
                         },
                       )
                     : Center(
-                        child: Text(
+                        child: AutoSizeText(
                           'Select a Category',
+                          maxLines: 1,
                           style: Theme.of(context).textTheme.displayMedium,
                         ),
                       ),
@@ -296,13 +299,14 @@ class _OrderMenuState extends State<OrderMenu> {
             Flexible(
               flex: 30,
               child: Container(
-                  width: double.infinity,
-                  height: height,
-                  decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.15),
-                  ),
-                  child: OrderSummary(order: widget.order)),
+                width: double.infinity,
+                height: height,
+                decoration: BoxDecoration(
+                  color:
+                      Theme.of(context).colorScheme.primary.withOpacity(0.15),
+                ),
+                child: OrderSummary(order: widget.order),
+              ),
             ),
           ],
         ),
@@ -310,30 +314,43 @@ class _OrderMenuState extends State<OrderMenu> {
     );
   }
 
-  // TODO: Make it so that the groupValue is the selectedOrderType
   Widget? _getTrailingOrderTypeData() {
-    String type = selectedOrderType!.orderType?.type.toLowerCase() ?? '';
+    String trailingText;
+    String? type = selectedOrderType.orderType?.type.toLowerCase();
 
-    if (selectedOrderType != null) {
+    // TODO: Make it so if type is set, then that type data must be set
+    if (type != null) {
       if (type == 'local') {
-        return AutoSizeText(
-          selectedOrderType!.localTable?.id ?? '-',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        );
+        if (selectedOrderType.localTable != null) {
+          RestaurantTable table = selectedOrderType.localTable!;
+          trailingText =
+              '${table.id}${table.tableName != null ? ' - ${table.tableName}' : ''}';
+        } else {
+          trailingText = 'No Table Selected';
+        }
       } else if (type == 'scheduled') {
-        return AutoSizeText(
-          selectedOrderType!.scheduledDateTime?.toString() ?? '-',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        );
+        if (selectedOrderType.scheduledDateTime != null) {
+          DateTime date = selectedOrderType.scheduledDateTime!;
+          TimeOfDay time = TimeOfDay.fromDateTime(date);
+
+          debugPrint(time.toString());
+          // Man, this is garbage, make an if-else statement pls ;-;
+          String formattedDateTime =
+              '${date.month}/${date.day} [${time.hour == 0 ? (time.hour + 12) : (time.hour == 12 ? time.hour : time.hour % 12) }:${time.minute < 10 ? '0${time.minute}' : time.minute} ${time.hour >= 12 ? 'PM' : 'AM'}]';
+
+          trailingText = formattedDateTime;
+        } else {
+          trailingText = 'No Time Selected';
+        }
       } else {
-        return const AutoSizeText(
-          '-',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        );
+        trailingText = '';
       }
+
+      return AutoSizeText(
+        trailingText,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
     }
 
     return null;
@@ -432,9 +449,35 @@ class _OrderMenuState extends State<OrderMenu> {
 
   Future<void> _showOrderTypeDialog() async {
     await showDialog<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // Save old values in case of cancel clicked
+        OrderType? oldOrderType = selectedOrderType.orderType;
+        RestaurantTable? oldLocalTable = selectedOrderType.localTable;
+        String? oldDeliveryLocation = selectedOrderType.deliveryLocation;
+        DateTime? oldScheduledDateTime = selectedOrderType.scheduledDateTime;
+
+        // track whether to pop context or hide keyboard
+        return PopScope(
+          canPop: false,
+          onPopInvoked: (bool didPop) {
+            if (didPop) {
+              return;
+            }
+            // if keyboard open
+            if (MediaQuery.of(context).viewInsets.bottom > 0.0) {
+              FocusScope.of(context).unfocus();
+            } else {
+              Navigator.of(context).pop();
+            }
+          },
+          child: AlertDialog(
+            contentPadding: const EdgeInsets.only(
+              left: 24.0,
+              top: 20.0,
+              right: 24.0,
+              bottom: 0.0,
+            ),
             title: const Text('Choose Order Type'),
             content: StatefulBuilder(
               builder: (BuildContext context, StateSetter setLocalState) {
@@ -443,55 +486,17 @@ class _OrderMenuState extends State<OrderMenu> {
 
                 return SizedBox(
                   width: MediaQuery.sizeOf(context).width * widthPercent,
-                  height: MediaQuery.sizeOf(context).width * heightPercent,
-
+                  height: MediaQuery.sizeOf(context).height * heightPercent,
                   child: Column(
                     children: <Widget>[
                       // Order Types
-                      FlexWrapper(
-                        perRow: orderTypes.length,
-                        children: List.generate(orderTypes.length, (index) {
-                          return OrderTypeRadioCard(
-                            orderType: orderTypes[index],
-                            groupValue: selectedOrder,
-                            onChange: (value) {
-                              // Stateful Builder SetState Only update the state locally
-                              // Therefore, nothing happens to the value when you ONLY update it locally
-                              // You must also update it globally (update outside)
-                              setLocalState(() {
-                                selectedOrder = value;
-                              });
-                            },
-                          );
-                        }),
-                      ),
+                      _orderTypeSelector(setLocalState),
 
                       // Horizontal Divider
                       const Divider(),
 
                       // Content
-                      Expanded(
-                        child: GridView.count(
-                          clipBehavior: Clip.hardEdge,
-                          shrinkWrap: true,
-                          crossAxisCount: 6,
-                          childAspectRatio: 3 / 4,
-                          //padding: const EdgeInsets.all(8),
-                          mainAxisSpacing: 16,
-                          crossAxisSpacing: 8,
-                          children: List.generate(tables.length, (index) {
-                            return TableRadioCard(
-                              table: tables[index],
-                              groupValue: tableIndex,
-                              onChange: (value) {
-                                setLocalState(() {
-                                  tableIndex = tables[index].id;
-                                });
-                              },
-                            );
-                          }),
-                        ),
-                      ),
+                      _orderTypeContent(setLocalState),
 
                       // Horizontal Divider
                       const Divider(),
@@ -501,12 +506,21 @@ class _OrderMenuState extends State<OrderMenu> {
               },
             ),
             actions: <Widget>[
+              // Wipe/cancel everything done
               TextButton(
                 child: const Text('Cancel'),
                 onPressed: () {
+                  // Reverse to old values
+                  selectedOrderType.orderType = oldOrderType;
+                  selectedOrderType.localTable = oldLocalTable;
+                  selectedOrderType.deliveryLocation = oldDeliveryLocation;
+                  selectedOrderType.scheduledDateTime = oldScheduledDateTime;
+
                   Navigator.of(context).pop();
                 },
               ),
+
+              // Confirm (just pop normally)
               TextButton(
                 child: const Text('Confirm'),
                 onPressed: () {
@@ -514,112 +528,209 @@ class _OrderMenuState extends State<OrderMenu> {
                 },
               ),
             ],
-          );
-        });
+          ),
+        );
+      },
+    );
 
     // Set state globally outside
     setState(() {
-      selectedOrder;
-      tableIndex;
+      //selectedOrder;
+      //tableIndex;
+      selectedOrderType;
     });
   }
 
-  /*
-  // TODO: Delete
-  Future<void> _showTestOrderTypeDialog() async {
-    await showDialog<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return Material(
-            child: Container(
-              constraints: BoxConstraints(
-                minWidth: MediaQuery.sizeOf(context).width / 2.0,
-                minHeight: MediaQuery.sizeOf(context).height / 2.0,
-                maxWidth: MediaQuery.sizeOf(context).width / 2.0,
-                maxHeight: MediaQuery.sizeOf(context).height / 2.0,
-              ),
-              child: Column(
-                children: <Widget>[
-                  FlexWrapper(
-                      perRow: orderTypes.length,
-                      children: List.generate(orderTypes.length, (index) {
-                        return OrderTypeRadioCard(
-                          orderType: orderTypes[index],
-                          groupValue: selectedOrder,
-                          onChange: (value) {
-                            setState(() {
-                              selectedOrder = value;
-                            });
-                          },
-                        );
-                      })),
-                  Expanded(
-                    child: GridView.count(
-                      clipBehavior: Clip.hardEdge,
-                      shrinkWrap: true,
-                      crossAxisCount: 7,
-                      childAspectRatio: 1,
-                      padding: const EdgeInsets.all(8),
-                      mainAxisSpacing: 4,
-                      crossAxisSpacing: 4,
-                      children: List.generate(30, (index) {
-                        return ChoiceChip(
-                          //color: Colors.blue,
-                          backgroundColor: Colors.transparent,
-                          labelPadding: EdgeInsets.zero,
-                          selected: (index + 1) == tableIndex,
-                          onSelected: (selected) {
-                            if (selected) {
-                              setState(() {
-                                tableIndex = (index + 1);;
-                              });
-                            }
-                          },
-                          label: Column(
-                            mainAxisAlignment:
-                            MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  const Tooltip(
-                                    message: 'Table Number',
-                                    child: Icon(Icons.table_restaurant),
-                                  ),
-                                  const SizedBox(width: 8.0),
-                                  AutoSizeText(
-                                    '${index + 1}',
-                                    maxLines: 1,
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  const Tooltip(
-                                    message: 'Number of Seats',
-                                    child: Icon(Icons.chair_alt),
-                                  ),
-                                  const SizedBox(width: 8.0),
-                                  AutoSizeText(
-                                    '4',
-                                    maxLines: 1,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
+  /// Create the Select Order Type Radio
+  Widget _orderTypeSelector(StateSetter setLocalState) {
+    return FlexWrapper(
+      perRow: orderTypes.length,
+      children: List.generate(orderTypes.length, (index) {
+        return OrderTypeRadioCard(
+          orderType: orderTypes[index],
+          groupValue: selectedOrderType.orderType?.type,
+          onChange: (value) {
+            // Stateful Builder SetState Only update the state locally
+            // Therefore, nothing happens to the value when you ONLY update it locally
+            // You must also update it globally (update outside)
+            setLocalState(() {
+              selectedOrderType.orderType = orderTypes[index];
+            });
+          },
+        );
+      }),
+    );
   }
-   */
+
+  /// Create the content of the selected order type
+  Widget _orderTypeContent(StateSetter setLocalState) {
+    String? selectedOrder = selectedOrderType.orderType?.type.toLowerCase();
+
+    if (selectedOrder != null) {
+      if (selectedOrder == 'local') {
+        return Expanded(
+          child: GridView.count(
+            clipBehavior: Clip.hardEdge,
+            shrinkWrap: true,
+            crossAxisCount: 6,
+            childAspectRatio: 3 / 4,
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 8,
+            children: List.generate(tables.length, (index) {
+              return TableRadioCard(
+                table: tables[index],
+                groupValue: selectedOrderType.localTable?.id,
+                onChange: (value) {
+                  setLocalState(() {
+                    selectedOrderType.localTable = tables[index];
+                  });
+                },
+              );
+            }),
+          ),
+        );
+      } else if (selectedOrder == 'takeaway') {
+        return const Expanded(child: Center(child: Text('')));
+      } else if (selectedOrder == 'delivery') {
+        TextEditingController controller = TextEditingController(
+          text: selectedOrderType.deliveryLocation,
+        );
+
+        return Expanded(
+          child: TextField(
+            controller: controller,
+            onChanged: (value) {
+              selectedOrderType.deliveryLocation = value;
+              debugPrint(selectedOrderType.deliveryLocation);
+            },
+            expands: true,
+            minLines: null,
+            maxLines: null,
+            maxLength: 1000,
+            decoration: const InputDecoration(
+              counterText: '',
+              labelText: 'Location',
+              hintText: 'Example: Qatif - Behind Tanoor Restaurant',
+              alignLabelWithHint: true,
+              border: InputBorder.none,
+              fillColor: Colors.transparent,
+              filled: true,
+            ),
+          ),
+        );
+      } else if (selectedOrder == 'scheduled') {
+        return Expanded(
+          child: SingleChildScrollView(
+            child: Row(
+              children: <Widget>[
+                const Spacer(flex: 15),
+                Flexible(
+                  flex: 70,
+                  child: CalendarDatePicker(
+                    initialDate:
+                        selectedOrderType.scheduledDateTime ?? DateTime.now(),
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime.now().add(const Duration(days: 30)),
+                    onDateChanged: (date) async {
+                      //setLocalState(() {});
+                      //selectedOrderType.scheduledDateTime = date;
+
+                      debugPrint(
+                          selectedOrderType.scheduledDateTime.toString());
+
+                      TimeOfDay? time = await showTimePicker(
+                        context: context,
+                        initialTime: selectedOrderType.scheduledDateTime != null
+                            ? TimeOfDay.fromDateTime(
+                                selectedOrderType.scheduledDateTime!,
+                              )
+                            : TimeOfDay.now(),
+                      );
+
+                      DateTime newDateTime;
+
+                      if (time != null) {
+                        newDateTime = DateTime(
+                          date.year,
+                          date.month,
+                          date.day,
+                          time.hour,
+                          time.minute,
+                        );
+                      } else {
+                        newDateTime = DateTime(
+                          date.year,
+                          date.month,
+                          date.day,
+                        );
+                      }
+
+                      selectedOrderType.scheduledDateTime = newDateTime;
+                    },
+                  ),
+                ),
+                const Spacer(flex: 15),
+              ],
+            ),
+          ),
+        );
+      } else {
+        return Expanded(
+          child: Center(
+            child: AutoSizeText(
+              'Error: Wrong Type',
+              maxLines: 1,
+              style: Theme.of(context).textTheme.displayMedium,
+            ),
+          ),
+        );
+      }
+    }
+
+    return Expanded(
+      child: Center(
+        child: AutoSizeText(
+          'Select Order Type',
+          maxLines: 1,
+          style: Theme.of(context).textTheme.displayMedium,
+        ),
+      ),
+    );
+  }
+
+  int? _getContentIndexFromSelectedOrder() {
+    String? selectedOrder = selectedOrderType.orderType?.type.toLowerCase();
+
+    if (selectedOrder != null) {
+      if (selectedOrder == 'local') {
+        return 0;
+      } else if (selectedOrder == 'takeaway') {
+        return 1;
+      } else if (selectedOrder == 'delivery') {
+        return 2;
+      } else if (selectedOrder == 'scheduled') {
+        return 3;
+      }
+    }
+
+    return null;
+  }
+
+  /*int? _getContentIndexFromSelectedOrder(String? selectedOrder) {
+    if (selectedOrder != null) {
+      if (selectedOrder == 'local') {
+        return 0;
+      } else if (selectedOrder == 'takeaway') {
+        return 1;
+      } else if (selectedOrder == 'delivery') {
+        return 2;
+      } else if (selectedOrder == 'scheduled') {
+        return 3;
+      }
+    }
+
+    return null;
+  }*/
 
   int _crossAxisCount() {
     final width = MediaQuery.of(context).size.width;
