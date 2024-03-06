@@ -1,4 +1,5 @@
 import 'line_item_model.dart';
+import 'order types/order_information.dart';
 
 /// Order Model (For a Single Order)
 
@@ -6,10 +7,12 @@ import 'line_item_model.dart';
 class Order {
   final String id;
   final List<LineItem> lineItems;
+  final OrderInformation orderInformation;
 
   Order({
     required this.id,
     required this.lineItems,
+    required this.orderInformation,
   });
 
   double calculateTotalPrice() {

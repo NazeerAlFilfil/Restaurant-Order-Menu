@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:restaurant_order_menu/main_menu.dart';
+import 'package:restaurant_order_menu/models/order%20types/order_information.dart';
+import 'package:restaurant_order_menu/models/order_type.dart';
 
+import 'dummy_data.dart';
 import 'models/category_model.dart';
 import 'models/item_model.dart';
 import 'models/option_model.dart';
@@ -22,10 +26,10 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurpleAccent),
         useMaterial3: true,
       ),
-      home: OrderMenu(categories: categories(), order: order()),
+      //home: OrderMenu(categories: categories(), orderTypes: orderTypes(), customers: customers, order: order()),
+      home: MainMenu(),
     );
   }
-
 
   List<Category> categories() {
     Unit large = Unit(
@@ -148,7 +152,18 @@ class MyApp extends StatelessWidget {
     return categories;
   }
 
+  List<OrderType> orderTypes() {
+    List<OrderType> orderTypes = [
+      OrderType(type: 'Local'),
+      OrderType(type: 'Takeaway'),
+      OrderType(type: 'Delivery'),
+      OrderType(type: 'Scheduled'),
+    ];
+
+    return orderTypes;
+  }
+
   Order order() {
-    return Order(id: '1', lineItems: []);
+    return Order(id: '1', lineItems: [], orderInformation: OrderInformation());
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 
 /// Must Specify TextEditingController AND FocusNode, OR NEITHER
 /// (Can't have any be null while the other isn't)
@@ -28,6 +29,12 @@ class AutocompleteField extends StatelessWidget {
   /// Maximum number of options, default to 10
   final int maxNumberOfOptions;
 
+  /// Keyboard Type, determines what keyboard to show
+  final TextInputType? keyboardType;
+
+  /// Text Input Formatter, determines what format to use
+  final List<TextInputFormatter>? textInputFormatter;
+
   /// List that contains all options
   final List<Object> optionsList;
 
@@ -41,6 +48,8 @@ class AutocompleteField extends StatelessWidget {
     this.getSubTitle,
     this.maxOptionsHeight = 250.0,
     this.maxNumberOfOptions = 10,
+    this.keyboardType,
+    this.textInputFormatter,
     required this.optionsList,
   });
 
@@ -178,6 +187,8 @@ class AutocompleteField extends StatelessWidget {
             controller: this.textEditingController ?? textEditingController,
             focusNode: focusNode,
             onFieldSubmitted: (String value) => onFieldSubmitted(),
+            keyboardType: keyboardType,
+            inputFormatters: textInputFormatter,
             decoration: InputDecoration(
               suffixIcon: IconButton(
                 onPressed: () {

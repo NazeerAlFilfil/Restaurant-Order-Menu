@@ -25,7 +25,8 @@ String formatNumber(double value) {
   String formattedValue = formatter.format(value);
 
   // Check if the number has a decimal point but ends with "0" or "00"
-  if (formattedValue.contains('.') && (formattedValue.endsWith('0') || formattedValue.endsWith('00'))) {
+  if (formattedValue.contains('.') &&
+      (formattedValue.endsWith('0') || formattedValue.endsWith('00'))) {
     // Remove trailing zeros and decimal point if it's not necessary
     //formattedValue = formattedValue.replaceAll(RegExp(r"([.][0-9]*?)0+$"), "");
     formattedValue = formattedValue.replaceAll(RegExp(r"([.]*?)0+$"), "");
@@ -33,4 +34,34 @@ String formatNumber(double value) {
   }
 
   return formattedValue;
+}
+
+String formatDate({required DateTime date, TimeOfDay? time}) {
+  time ??= TimeOfDay.fromDateTime(date);
+
+  String formattedDate = 'On ${date.month}/${date.day} At [';
+
+  if (time.hour % 12 == 0) {
+    formattedDate += '12';
+  } else {
+    formattedDate += '${time.hour % 12}';
+  }
+  formattedDate += ':';
+  if (time.minute < 10) {
+    formattedDate += '0${time.minute}';
+  } else {
+    formattedDate += '${time.minute}';
+  }
+  if (time.hour > 12) {
+    formattedDate += ' PM';
+  } else {
+    formattedDate += ' AM';
+  }
+
+  formattedDate += ']';
+
+  // All in one line
+  // String formattedDate = 'On ${date.month}/${date.day} At [${time.hour == 0 ? (time.hour + 12) : (time.hour == 12 ? time.hour : time.hour % 12) }:${time.minute < 10 ? '0${time.minute}' : time.minute} ${time.hour >= 12 ? 'PM' : 'AM'}]';
+
+  return formattedDate;
 }

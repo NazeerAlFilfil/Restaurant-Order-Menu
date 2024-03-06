@@ -30,7 +30,7 @@ class _TableRadioCardState extends State<TableRadioCard> {
     //TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
     //textStyle?.color = surfaceColor;
 
-    return Tooltip(
+    /*return Tooltip(
       richMessage: WidgetSpan(
         style: Theme.of(context).tooltipTheme.textStyle,
         child: Row(
@@ -166,6 +166,71 @@ class _TableRadioCardState extends State<TableRadioCard> {
                   : const Text(''),
             ],
           ),
+        ),
+      ),
+    );*/
+
+    return Card(
+      elevation: 0,
+      clipBehavior: Clip.hardEdge,
+      color: isSelected ? primaryColor.withOpacity(0.15) : Colors.transparent,
+      margin: EdgeInsets.zero,
+      child: InkWell(
+        onTap: () => widget.onChange(widget.table.id),
+        splashColor: primaryColor.withOpacity(0.15),
+        highlightColor: primaryColor.withOpacity(0.10),
+        child: Column(
+          children: <Widget>[
+            widget.table.tableName != null
+                ? AutoSizeText(
+              widget.table.tableName!,
+              maxLines: 1,
+              style: isSelected ? TextStyle(color: primaryColor) : null,
+            )
+                : const Text(''),
+            Expanded(
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Container(
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.symmetric(vertical: 4.0),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color:
+                      isSelected ? primaryColor : const Color(0xFF000000),
+                      width: 5.0,
+                    ),
+                  ),
+                  child: Text(
+                    widget.table.id,
+                    maxLines: 1,
+                    style: isSelected ? TextStyle(color: primaryColor) : null,
+                  ),
+                ),
+              ),
+            ),
+            widget.table.numberOfSeats != null
+                ? Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Icon(
+                  Icons.event_seat,
+                  color: isSelected ? primaryColor : null,
+                ),
+                //const Text(': '),
+                const SizedBox(width: 8.0),
+                AutoSizeText(
+                  widget.table.numberOfSeats!,
+                  maxLines: 1,
+                  style: isSelected
+                      ? TextStyle(color: primaryColor)
+                      : null,
+                ),
+              ],
+            )
+                : const Text(''),
+          ],
         ),
       ),
     );

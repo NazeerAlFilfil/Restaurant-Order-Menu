@@ -206,6 +206,9 @@ class _OrderSummaryState extends State<OrderSummary> {
         GestureDetector(
           // TODO: Make double tabs immediately go to check out
           // TODO: Make Single tab show alert box that asks you to (cancel, confirm, confirm & checkout)
+          // TODO: Remove all irrelevant order type information (from the ones not chosen)
+          // TODO: Add timestamp to the order
+          // TODO: Add customer name & phone (or their model) to the order
           onDoubleTap: () {
             if (kDebugMode) print('double tabbed');
           },

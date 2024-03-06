@@ -7,8 +7,9 @@ import 'package:restaurant_order_menu/components/order%20information/order_type_
 import 'package:restaurant_order_menu/components/order%20information/table_radio_card.dart';
 import 'package:restaurant_order_menu/models/customer.dart';
 import 'package:restaurant_order_menu/models/order%20types/local%20models/restaurant_table.dart';
-import 'package:restaurant_order_menu/models/order%20types/selected_order_type.dart';
+import 'package:restaurant_order_menu/models/order%20types/order_information.dart';
 import 'package:restaurant_order_menu/models/order_type.dart';
+import 'package:restaurant_order_menu/utility.dart';
 
 import 'components/category_card.dart';
 import 'components/item_card.dart';
@@ -22,11 +23,15 @@ import 'models/order_model.dart';
 
 class OrderMenu extends StatefulWidget {
   final List<Category> categories;
+  final List<OrderType> orderTypes;
+  final List<Customer> customers;
   final Order order;
 
   const OrderMenu({
     super.key,
     required this.categories,
+    required this.orderTypes,
+    required this.customers,
     required this.order,
   });
 
@@ -37,33 +42,11 @@ class OrderMenu extends StatefulWidget {
 class _OrderMenuState extends State<OrderMenu> {
   late List<ItemCard> itemCards = [];
 
-  late SelectedOrderType selectedOrderType = SelectedOrderType();
-
   final TextEditingController customerNameController = TextEditingController();
   final FocusNode customerNameFocusNode = FocusNode();
 
   final TextEditingController customerPhoneController = TextEditingController();
   final FocusNode customerPhoneFocusNode = FocusNode();
-
-  /*
-  final List<Customer> customers = [
-    Customer(name: 'Nazeer', phone: '+966576894659'),
-    Customer(name: 'Omar', phone: '+966556921526'),
-    Customer(name: 'Ali', phone: '+966580984308'),
-    Customer(name: 'Hadi', phone: '+966583463476'),
-    Customer(name: 'Mohammed', phone: '+966523262623'),
-    Customer(name: 'Khaled', phone: '+966523623623'),
-    Customer(name: 'Mustafa', phone: '+966543572396'),
-    Customer(name: 'Sara', phone: '+966554684984'),
-    Customer(name: 'Tamara', phone: '+966518449544'),
-  ];*/
-
-  List<OrderType> orderTypes = [
-    OrderType(type: 'Local'),
-    OrderType(type: 'Takeaway'),
-    OrderType(type: 'Delivery'),
-    OrderType(type: 'Scheduled'),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +99,7 @@ class _OrderMenuState extends State<OrderMenu> {
                         textEditingController: customerNameController,
                         focusNode: customerNameFocusNode,
                         hintText: 'Customer Name...',
-                        optionsList: customers,
+                        optionsList: widget.customers,
                         onSelected: (selection) =>
                             _customerNameSelected(selection),
                         getTitle: (Object customer) =>
@@ -148,7 +131,8 @@ class _OrderMenuState extends State<OrderMenu> {
                         textEditingController: customerPhoneController,
                         focusNode: customerPhoneFocusNode,
                         hintText: 'Customer Phone...',
-                        optionsList: customers,
+                        keyboardType: TextInputType.phone,
+                        optionsList: widget.customers,
                         onSelected: (selection) =>
                             _customerPhoneSelected(selection),
                         getTitle: (Object customer) =>
@@ -172,7 +156,7 @@ class _OrderMenuState extends State<OrderMenu> {
                   children: <Widget>[
                     IconButton(
                       onPressed: () {},
-                      icon: const Icon(Icons.table_restaurant),
+                      icon: Icon(_getOrderTypeIcon()),
                       tooltip: 'Order Type',
                     ),
                     Expanded(
@@ -183,16 +167,15 @@ class _OrderMenuState extends State<OrderMenu> {
                         onTap: _showOrderTypeDialog,
                         title: AutoSizeText(
                           //selectedOrder ?? 'Select Order Type',
-                          selectedOrderType.orderType?.type ??
+                          widget.order.orderInformation.orderType?.type ??
                               'Select Order Type',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        // TODO: Working here~
                         trailing: _getTrailingOrderTypeData(),
                         /*AutoSizeText(
                           //'Type Data',
-                          selectedOrderType.orderType?.type ?? '-',
+                          widget.order.orderInformation.orderType?.type ?? '-',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),*/
@@ -204,17 +187,18 @@ class _OrderMenuState extends State<OrderMenu> {
             ),
           ],
         ),
-        actions: <Widget>[
+
+        // TODO: Make create method that enables the user to input ALL the order information at once (one page)
+        /*actions: <Widget>[
           IconButton(
             onPressed: () {},
             icon: const Icon(Icons.edit),
             tooltip: 'Edit Order Information',
           ),
-        ],
+        ],*/
       ),
       body: GestureDetector(
         onTap: () {
-          //FocusManager.instance.primaryFocus?.unfocus();
           // Remove focus from all children
           FocusScope.of(context).requestFocus(FocusNode());
           // Hide keyboard
@@ -314,31 +298,49 @@ class _OrderMenuState extends State<OrderMenu> {
     );
   }
 
+  /// Get the icon for each of the order types
+  IconData _getOrderTypeIcon() {
+    if (widget.order.orderInformation.orderType == null) {
+      return Icons.question_mark;
+    } else {
+      String type = widget.order.orderInformation.orderType!.type.toLowerCase();
+      if (type == 'local') {
+        return Icons.table_bar;
+      } else if (type == 'takeaway') {
+        return Icons.takeout_dining;
+      } else if (type == 'delivery') {
+        return Icons.delivery_dining;
+      } else if (type == 'scheduled') {
+        return Icons.date_range;
+      } else {
+        return Icons.question_mark;
+      }
+    }
+  }
+
+  /// Get the trailing widget for each of the eligible order types
   Widget? _getTrailingOrderTypeData() {
     String trailingText;
-    String? type = selectedOrderType.orderType?.type.toLowerCase();
+    String? type = widget.order.orderInformation.orderType?.type.toLowerCase();
 
-    // TODO: Make it so if type is set, then that type data must be set
     if (type != null) {
       if (type == 'local') {
-        if (selectedOrderType.localTable != null) {
-          RestaurantTable table = selectedOrderType.localTable!;
+        if (widget.order.orderInformation.localTable != null) {
+          RestaurantTable table = widget.order.orderInformation.localTable!;
           trailingText =
-              '${table.id}${table.tableName != null ? ' - ${table.tableName}' : ''}';
+              'Table [${table.id}${table.tableName != null ? ' - ${table.tableName}' : ''}]';
         } else {
           trailingText = 'No Table Selected';
         }
       } else if (type == 'scheduled') {
-        if (selectedOrderType.scheduledDateTime != null) {
-          DateTime date = selectedOrderType.scheduledDateTime!;
-          TimeOfDay time = TimeOfDay.fromDateTime(date);
+        if (widget.order.orderInformation.scheduledDateTime != null) {
+          DateTime date = widget.order.orderInformation.scheduledDateTime!;
 
-          debugPrint(time.toString());
-          // Man, this is garbage, make an if-else statement pls ;-;
-          String formattedDateTime =
-              '${date.month}/${date.day} [${time.hour == 0 ? (time.hour + 12) : (time.hour == 12 ? time.hour : time.hour % 12) }:${time.minute < 10 ? '0${time.minute}' : time.minute} ${time.hour >= 12 ? 'PM' : 'AM'}]';
+          // Man, this is garbage, make it an if-else statement pls ;-; [LATER ON: DONE :D]
+          //String formattedDateTime = 'Date ${date.month}/${date.day} At [${time.hour == 0 ? (time.hour + 12) : (time.hour == 12 ? time.hour : time.hour % 12) }:${time.minute < 10 ? '0${time.minute}' : time.minute} ${time.hour >= 12 ? 'PM' : 'AM'}]';
+          //trailingText = formattedDateTime;
 
-          trailingText = formattedDateTime;
+          trailingText = formatDate(date: date);
         } else {
           trailingText = 'No Time Selected';
         }
@@ -356,7 +358,7 @@ class _OrderMenuState extends State<OrderMenu> {
     return null;
   }
 
-  // TODO: Decide if to put the name & phone regardless of what was present before, or only put it when the other field is empty
+  // TODO: Add the customer to the Order Information
   /// On selection for customer name
   void _customerNameSelected(Object? customer) {
     debugPrint(customer.toString());
@@ -364,9 +366,6 @@ class _OrderMenuState extends State<OrderMenu> {
       customer as Customer;
       customerNameController.text = customer.name ?? '';
       customerPhoneController.text = customer.phone ?? '';
-      /*if (customerPhoneController.text == '') {
-        customerPhoneController.text = customer.phone ?? '';
-      }*/
     } else {
       customerNameController.clear();
     }
@@ -377,9 +376,6 @@ class _OrderMenuState extends State<OrderMenu> {
     debugPrint(customer.toString());
     if (customer != null) {
       customer as Customer;
-      /*if (customerNameController.text == '') {
-        customerNameController.text = customer.name ?? '';
-      }*/
       customerNameController.text = customer.name ?? '';
       customerPhoneController.text = customer.phone ?? '';
     } else {
@@ -452,10 +448,10 @@ class _OrderMenuState extends State<OrderMenu> {
       context: context,
       builder: (BuildContext context) {
         // Save old values in case of cancel clicked
-        OrderType? oldOrderType = selectedOrderType.orderType;
-        RestaurantTable? oldLocalTable = selectedOrderType.localTable;
-        String? oldDeliveryLocation = selectedOrderType.deliveryLocation;
-        DateTime? oldScheduledDateTime = selectedOrderType.scheduledDateTime;
+        OrderType? oldOrderType = widget.order.orderInformation.orderType;
+        RestaurantTable? oldLocalTable = widget.order.orderInformation.localTable;
+        String? oldDeliveryLocation = widget.order.orderInformation.deliveryLocation;
+        DateTime? oldScheduledDateTime = widget.order.orderInformation.scheduledDateTime;
 
         // track whether to pop context or hide keyboard
         return PopScope(
@@ -511,10 +507,10 @@ class _OrderMenuState extends State<OrderMenu> {
                 child: const Text('Cancel'),
                 onPressed: () {
                   // Reverse to old values
-                  selectedOrderType.orderType = oldOrderType;
-                  selectedOrderType.localTable = oldLocalTable;
-                  selectedOrderType.deliveryLocation = oldDeliveryLocation;
-                  selectedOrderType.scheduledDateTime = oldScheduledDateTime;
+                  widget.order.orderInformation.orderType = oldOrderType;
+                  widget.order.orderInformation.localTable = oldLocalTable;
+                  widget.order.orderInformation.deliveryLocation = oldDeliveryLocation;
+                  widget.order.orderInformation.scheduledDateTime = oldScheduledDateTime;
 
                   Navigator.of(context).pop();
                 },
@@ -537,24 +533,24 @@ class _OrderMenuState extends State<OrderMenu> {
     setState(() {
       //selectedOrder;
       //tableIndex;
-      selectedOrderType;
+      widget.order.orderInformation;
     });
   }
 
   /// Create the Select Order Type Radio
   Widget _orderTypeSelector(StateSetter setLocalState) {
     return FlexWrapper(
-      perRow: orderTypes.length,
-      children: List.generate(orderTypes.length, (index) {
+      perRow: widget.orderTypes.length,
+      children: List.generate(widget.orderTypes.length, (index) {
         return OrderTypeRadioCard(
-          orderType: orderTypes[index],
-          groupValue: selectedOrderType.orderType?.type,
+          orderType: widget.orderTypes[index],
+          groupValue: widget.order.orderInformation.orderType?.type,
           onChange: (value) {
             // Stateful Builder SetState Only update the state locally
             // Therefore, nothing happens to the value when you ONLY update it locally
             // You must also update it globally (update outside)
             setLocalState(() {
-              selectedOrderType.orderType = orderTypes[index];
+              widget.order.orderInformation.orderType = widget.orderTypes[index];
             });
           },
         );
@@ -564,7 +560,7 @@ class _OrderMenuState extends State<OrderMenu> {
 
   /// Create the content of the selected order type
   Widget _orderTypeContent(StateSetter setLocalState) {
-    String? selectedOrder = selectedOrderType.orderType?.type.toLowerCase();
+    String? selectedOrder = widget.order.orderInformation.orderType?.type.toLowerCase();
 
     if (selectedOrder != null) {
       if (selectedOrder == 'local') {
@@ -579,10 +575,10 @@ class _OrderMenuState extends State<OrderMenu> {
             children: List.generate(tables.length, (index) {
               return TableRadioCard(
                 table: tables[index],
-                groupValue: selectedOrderType.localTable?.id,
+                groupValue: widget.order.orderInformation.localTable?.id,
                 onChange: (value) {
                   setLocalState(() {
-                    selectedOrderType.localTable = tables[index];
+                    widget.order.orderInformation.localTable = tables[index];
                   });
                 },
               );
@@ -593,15 +589,15 @@ class _OrderMenuState extends State<OrderMenu> {
         return const Expanded(child: Center(child: Text('')));
       } else if (selectedOrder == 'delivery') {
         TextEditingController controller = TextEditingController(
-          text: selectedOrderType.deliveryLocation,
+          text: widget.order.orderInformation.deliveryLocation,
         );
 
         return Expanded(
           child: TextField(
             controller: controller,
             onChanged: (value) {
-              selectedOrderType.deliveryLocation = value;
-              debugPrint(selectedOrderType.deliveryLocation);
+              widget.order.orderInformation.deliveryLocation = value;
+              debugPrint(widget.order.orderInformation.deliveryLocation);
             },
             expands: true,
             minLines: null,
@@ -628,21 +624,21 @@ class _OrderMenuState extends State<OrderMenu> {
                   flex: 70,
                   child: CalendarDatePicker(
                     initialDate:
-                        selectedOrderType.scheduledDateTime ?? DateTime.now(),
+                        widget.order.orderInformation.scheduledDateTime ?? DateTime.now(),
                     firstDate: DateTime.now(),
                     lastDate: DateTime.now().add(const Duration(days: 30)),
                     onDateChanged: (date) async {
                       //setLocalState(() {});
-                      //selectedOrderType.scheduledDateTime = date;
+                      //widget.order.orderInformation.scheduledDateTime = date;
 
                       debugPrint(
-                          selectedOrderType.scheduledDateTime.toString());
+                          widget.order.orderInformation.scheduledDateTime.toString());
 
                       TimeOfDay? time = await showTimePicker(
                         context: context,
-                        initialTime: selectedOrderType.scheduledDateTime != null
+                        initialTime: widget.order.orderInformation.scheduledDateTime != null
                             ? TimeOfDay.fromDateTime(
-                                selectedOrderType.scheduledDateTime!,
+                                widget.order.orderInformation.scheduledDateTime!,
                               )
                             : TimeOfDay.now(),
                       );
@@ -665,7 +661,7 @@ class _OrderMenuState extends State<OrderMenu> {
                         );
                       }
 
-                      selectedOrderType.scheduledDateTime = newDateTime;
+                      widget.order.orderInformation.scheduledDateTime = newDateTime;
                     },
                   ),
                 ),
@@ -697,40 +693,6 @@ class _OrderMenuState extends State<OrderMenu> {
       ),
     );
   }
-
-  int? _getContentIndexFromSelectedOrder() {
-    String? selectedOrder = selectedOrderType.orderType?.type.toLowerCase();
-
-    if (selectedOrder != null) {
-      if (selectedOrder == 'local') {
-        return 0;
-      } else if (selectedOrder == 'takeaway') {
-        return 1;
-      } else if (selectedOrder == 'delivery') {
-        return 2;
-      } else if (selectedOrder == 'scheduled') {
-        return 3;
-      }
-    }
-
-    return null;
-  }
-
-  /*int? _getContentIndexFromSelectedOrder(String? selectedOrder) {
-    if (selectedOrder != null) {
-      if (selectedOrder == 'local') {
-        return 0;
-      } else if (selectedOrder == 'takeaway') {
-        return 1;
-      } else if (selectedOrder == 'delivery') {
-        return 2;
-      } else if (selectedOrder == 'scheduled') {
-        return 3;
-      }
-    }
-
-    return null;
-  }*/
 
   int _crossAxisCount() {
     final width = MediaQuery.of(context).size.width;
