@@ -14,6 +14,9 @@ class AutocompleteField extends StatelessWidget {
   /// Hint text for the TextField
   final String hintText;
 
+  /// Read Only
+  final bool readOnly;
+
   /// Function to handle when an option is selected
   final Function(Object? selection) onSelected;
 
@@ -43,6 +46,7 @@ class AutocompleteField extends StatelessWidget {
     this.textEditingController,
     this.focusNode,
     required this.hintText,
+    this.readOnly = false,
     required this.onSelected,
     required this.getTitle,
     this.getSubTitle,
@@ -73,8 +77,8 @@ class AutocompleteField extends StatelessWidget {
             return const Iterable<Object>.empty();
           }
 
-          // TODO: For some reason, this shit is getting printed 2~3 times, which means it might cause delays with bigger lists? (At least I should know the cause)
-          // TODO: The problem seems like its one of the quirks of Flutter, as even in the official documentation, the same problem can be observed :|
+          // For some reason, this shit is getting printed 2~3 times, which means it might cause delays with bigger lists? (At least I should know the cause)
+          // The problem seems like its one of the quirks of Flutter, as even in the official documentation, the same problem can be observed :|
           //debugPrint('--------------${optionsList.length}--------------');
           /*return optionsList.where((Object option) {
             //debugPrint(option.toString());
@@ -186,6 +190,7 @@ class AutocompleteField extends StatelessWidget {
           return TextFormField(
             controller: this.textEditingController ?? textEditingController,
             focusNode: focusNode,
+            readOnly: readOnly,
             onFieldSubmitted: (String value) => onFieldSubmitted(),
             keyboardType: keyboardType,
             inputFormatters: textInputFormatter,

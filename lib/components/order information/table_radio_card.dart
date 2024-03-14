@@ -27,6 +27,8 @@ class _TableRadioCardState extends State<TableRadioCard> {
     Color primaryColor = Theme.of(context).colorScheme.primary;
     Color surfaceColor = Theme.of(context).colorScheme.surface;
 
+    bool isSelectable = !widget.table.occupied ^ isSelected;
+
     //TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
     //textStyle?.color = surfaceColor;
 
@@ -173,10 +175,12 @@ class _TableRadioCardState extends State<TableRadioCard> {
     return Card(
       elevation: 0,
       clipBehavior: Clip.hardEdge,
-      color: isSelected ? primaryColor.withOpacity(0.15) : Colors.transparent,
+      color: widget.table.occupied ? Colors.black.withOpacity(0.15) :
+      (isSelected ? primaryColor.withOpacity(0.15) : Colors.transparent),
       margin: EdgeInsets.zero,
       child: InkWell(
-        onTap: () => widget.onChange(widget.table.id),
+        onTap: widget.table.occupied ? null :
+        (() => widget.onChange(widget.table.id)),
         splashColor: primaryColor.withOpacity(0.15),
         highlightColor: primaryColor.withOpacity(0.10),
         child: Column(

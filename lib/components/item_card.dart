@@ -6,7 +6,7 @@ import '../models/item_model.dart';
 /// Used to displayed Item Cards in the Order Menu
 class ItemCard extends StatelessWidget {
   final Item item;
-  final Function(Item item) onTab;
+  final void Function(Item item)? onTab;
 
   const ItemCard({
     super.key,
@@ -14,16 +14,17 @@ class ItemCard extends StatelessWidget {
     required this.onTab,
   });
 
-  // TODO: Solve Ink Well not being applied well
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 0,
+      clipBehavior: Clip.hardEdge,
       child: InkWell(
-        onTap: () => onTab(item),
+        onTap: onTab != null ? () => onTab!(item) : null,
         child: Card(
           elevation: 0,
           margin: const EdgeInsets.all(4.0),
+          color: Colors.transparent,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
@@ -32,6 +33,7 @@ class ItemCard extends StatelessWidget {
                 elevation: 0,
                 margin: EdgeInsets.zero,
                 clipBehavior: Clip.hardEdge,
+                color: Colors.transparent,
                 child: Image(
                   fit: BoxFit.cover,
                   image: AssetImage(item.imagePath),

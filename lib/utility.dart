@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 
 import 'constants.dart';
 
-// TODO: Hope this is actually works as intended, pls
 Color? optionColor(int index, int level) {
   if (index < level || level == 0) {
     if (level < defaultLevelColors.length) {
@@ -64,4 +63,42 @@ String formatDate({required DateTime date, TimeOfDay? time}) {
   // String formattedDate = 'On ${date.month}/${date.day} At [${time.hour == 0 ? (time.hour + 12) : (time.hour == 12 ? time.hour : time.hour % 12) }:${time.minute < 10 ? '0${time.minute}' : time.minute} ${time.hour >= 12 ? 'PM' : 'AM'}]';
 
   return formattedDate;
+}
+
+bool isOrderActive(String? status) {
+  status = status?.toLowerCase();
+
+  if (status != null) {
+    if (status == 'received' ||
+        status == 'complete' ||
+        status == 'delivery' ||
+        status == 'deleted' ||
+        status == 'cancelled') {
+      return false;
+    }
+
+    return true;
+  }
+
+  return true;
+}
+
+bool isOrderEditable(String? status) {
+  status = status?.toLowerCase();
+
+  if (status != null) {
+    if (status == 'served' ||
+        status == 'out for delivery' ||
+        status == 'received' ||
+        status == 'complete' ||
+        status == 'delivery' ||
+        status == 'deleted' ||
+        status == 'cancelled') {
+      return false;
+    }
+
+    return true;
+  }
+
+  return true;
 }

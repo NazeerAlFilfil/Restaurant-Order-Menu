@@ -1,25 +1,13 @@
 
+import 'models/category_model.dart';
 import 'models/customer.dart';
+import 'models/item_model.dart';
+import 'models/option_model.dart';
 import 'models/order types/local models/restaurant_table.dart';
-
-final List<RestaurantTable> tables = [
-  RestaurantTable(id: '1', tableName: 'VIP', numberOfSeats: '8'),
-  RestaurantTable(id: '2', tableName: 'VIP 2', numberOfSeats: '8'),
-  RestaurantTable(id: '3', numberOfSeats: '4'),
-  RestaurantTable(id: '4', numberOfSeats: '4'),
-  RestaurantTable(id: '5', numberOfSeats: '2'),
-  RestaurantTable(id: '6', numberOfSeats: '6'),
-  RestaurantTable(id: '7', numberOfSeats: '5'),
-  RestaurantTable(id: '8', numberOfSeats: '4'),
-  RestaurantTable(id: '9', numberOfSeats: '12'),
-  RestaurantTable(id: '10', tableName: 'Partition 1'),
-  RestaurantTable(id: '11', tableName: 'Partition 2'),
-  RestaurantTable(id: '12', tableName: 'Partition 3'),
-  RestaurantTable(id: '13'),
-  RestaurantTable(id: '14'),
-  RestaurantTable(id: '15'),
-  RestaurantTable(id: '16'),
-];
+import 'models/order types/order_information.dart';
+import 'models/order_model.dart';
+import 'models/order_type.dart';
+import 'models/unit_model.dart';
 
 final List<Customer> customers = [
   Customer(name: 'Aaren', phone: '+966525075799'),
@@ -4523,3 +4511,238 @@ final List<Customer> customers = [
   Customer(name: 'Susannah', phone: '+966585791222'),
   Customer(name: 'Susanne', phone: '+966521139486'),
 ];
+
+final List<RestaurantTable> tables = [
+  RestaurantTable(id: '1', tableName: 'VIP', numberOfSeats: '8'),
+  RestaurantTable(id: '2', tableName: 'VIP 2', numberOfSeats: '8'),
+  RestaurantTable(id: '3', numberOfSeats: '4'),
+  RestaurantTable(id: '4', numberOfSeats: '4'),
+  RestaurantTable(id: '5', numberOfSeats: '2'),
+  RestaurantTable(id: '6', numberOfSeats: '6'),
+  RestaurantTable(id: '7', numberOfSeats: '5'),
+  RestaurantTable(id: '8', numberOfSeats: '4'),
+  RestaurantTable(id: '9', numberOfSeats: '12'),
+  RestaurantTable(id: '10', tableName: 'Partition 1'),
+  RestaurantTable(id: '11', tableName: 'Partition 2'),
+  RestaurantTable(id: '12', tableName: 'Partition 3'),
+  RestaurantTable(id: '13'),
+  RestaurantTable(id: '14'),
+  RestaurantTable(id: '15'),
+  RestaurantTable(id: '16'),
+];
+
+/*final List<Category> categories = [
+
+];
+
+final List<Unit> units = [
+Unit(
+  id: 1,
+  itemId: 1,
+  label: 'Large',
+  price: 18,
+  imagePath: 'assets/restaurant/units/l.png',
+  filledImagePath: 'assets/restaurant/units/filled_l.png',
+),
+Unit(
+  id: 2,
+  itemId: 1,
+  label: 'Medium',
+  price: 15,
+  imagePath: 'assets/restaurant/units/m.png',
+  filledImagePath: 'assets/restaurant/units/filled_m.png',
+),
+Unit(
+  id: 3,
+  itemId: 1,
+  label: 'Small',
+  price: 12,
+  imagePath: 'assets/restaurant/units/s.png',
+  filledImagePath: 'assets/restaurant/units/filled_s.png',
+),
+];
+
+final List<Option> options = [
+Option(
+  id: 1,
+  itemId: 1,
+  label: 'Tomato',
+  imagePath: 'assets/restaurant/options/tomato.png',
+),
+Option(
+  id: 2,
+  itemId: 1,
+  label: 'Lettuce',
+  imagePath: 'assets/restaurant/options/lettuce.png',
+  defaultLevel: 2,
+),
+Option(
+  id: 3,
+  itemId: 1,
+  label: 'Cheese',
+  imagePath: 'assets/restaurant/options/cheese.png',
+  defaultLevel: 2,
+  price: 3,
+),
+Option(
+  id: 4,
+  itemId: 1,
+  label: 'Sauce',
+  imagePath: 'assets/restaurant/options/souce.png',
+  defaultLevel: 2,
+),
+];*/
+
+List<Category> categories() {
+  Unit large = Unit(
+    id: 1,
+    itemId: 1,
+    label: 'Large',
+    price: 18,
+    imagePath: 'assets/restaurant/units/l.png',
+    filledImagePath: 'assets/restaurant/units/filled_l.png',
+  );
+  Unit medium = Unit(
+    id: 2,
+    itemId: 1,
+    label: 'Medium',
+    price: 15,
+    imagePath: 'assets/restaurant/units/m.png',
+    filledImagePath: 'assets/restaurant/units/filled_m.png',
+  );
+  Unit small = Unit(
+    id: 3,
+    itemId: 1,
+    label: 'Small',
+    price: 12,
+    imagePath: 'assets/restaurant/units/s.png',
+    filledImagePath: 'assets/restaurant/units/filled_s.png',
+  );
+
+  List<Unit> units = [large, medium, small];
+
+  Option tomato = Option(
+    id: 1,
+    itemId: 1,
+    label: 'Tomato',
+    imagePath: 'assets/restaurant/options/tomato.png',
+  );
+  Option lettuce = Option(
+    id: 2,
+    itemId: 1,
+    label: 'Lettuce',
+    imagePath: 'assets/restaurant/options/lettuce.png',
+    defaultLevel: 2,
+  );
+  Option cheese = Option(
+    id: 3,
+    itemId: 1,
+    label: 'Cheese',
+    imagePath: 'assets/restaurant/options/cheese.png',
+    defaultLevel: 2,
+    price: 3,
+  );
+  Option sauce = Option(
+    id: 4,
+    itemId: 1,
+    label: 'Sauce',
+    imagePath: 'assets/restaurant/options/souce.png',
+    defaultLevel: 2,
+  );
+
+  List<Option> options = [tomato, lettuce, cheese, sauce];
+
+  Item burger = Item(
+    id: 1,
+    label: 'Double Mini Burger',
+    imagePath: 'assets/restaurant/appetizer/burger.png',
+    units: units,
+    options: options,
+  );
+  Item canapes = Item(
+    id: 2,
+    label: 'Canapes',
+    imagePath: 'assets/restaurant/appetizer/canapes.png',
+    units: units,
+    options: options,
+  );
+  Item empanada = Item(
+    id: 3,
+    label: 'Empanada',
+    imagePath: 'assets/restaurant/appetizer/empanada.png',
+    units: units,
+    options: options,
+  );
+  Item nachos = Item(
+    id: 4,
+    label: 'Nachos',
+    imagePath: 'assets/restaurant/appetizer/nachos.png',
+    units: units,
+    options: options,
+  );
+
+  List<Item> items = [burger, canapes, empanada, nachos];
+
+  Category appetizers = Category(
+    label: 'Appetizers',
+    imagePath: 'assets/restaurant/appetizer.png',
+    items: items,
+  );
+  Category salads = Category(
+    label: 'Salads',
+    imagePath: 'assets/restaurant/salad.png',
+    items: items,
+  );
+  Category falafel = Category(
+    label: 'Falafel',
+    imagePath: 'assets/restaurant/falafel.png',
+    items: items,
+  );
+  Category pasta = Category(
+    label: 'Pasta',
+    imagePath: 'assets/restaurant/spaguetti.png',
+    items: items,
+  );
+  Category pizza = Category(
+    label: 'Pizza',
+    imagePath: 'assets/restaurant/pizza.png',
+    items: items,
+  );
+  Category desserts = Category(
+    label: 'Desserts',
+    imagePath: 'assets/restaurant/gelato.png',
+    items: items,
+  );
+  Category beverages = Category(
+    label: 'Beverages',
+    imagePath: 'assets/restaurant/lemonade.png',
+    items: items,
+  );
+
+  List<Category> categories = [
+    appetizers,
+    salads,
+    falafel,
+    pasta,
+    pizza,
+    desserts,
+    beverages,
+  ];
+
+  return categories;
+}
+
+List<OrderType> orderTypes() {
+  List<OrderType> orderTypes = [
+    OrderType(type: 'Local'),
+    OrderType(type: 'Takeaway'),
+    OrderType(type: 'Delivery'),
+    OrderType(type: 'Scheduled'),
+  ];
+
+  return orderTypes;
+}
+
+Order order() {
+  return Order(id: '1', lineItems: [], orderInformation: OrderInformation());
+}

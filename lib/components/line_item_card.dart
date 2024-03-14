@@ -6,8 +6,8 @@ import 'line_item_option.dart';
 
 class LineItemCard extends StatelessWidget {
   final LineItem lineItem;
-  final Function(LineItem lineItem) onTab;
-  final Function(LineItem lineItem) onRemovePressed;
+  final Function(LineItem lineItem)? onTab;
+  final Function(LineItem lineItem)? onRemovePressed;
 
   const LineItemCard({
     super.key,
@@ -22,7 +22,7 @@ class LineItemCard extends StatelessWidget {
       children: <Widget>[
         Card(
           child: InkWell(
-            onTap: () => onTab(lineItem),
+            onTap: onTab != null ? () => onTab!(lineItem) : null,
             child: Padding(
               padding: const EdgeInsets.symmetric(
                 vertical: 4.0,
@@ -186,16 +186,21 @@ class LineItemCard extends StatelessWidget {
         ),
 
         // Cancel Icon Button
-        Positioned(
-          top: -2,
-          right: -2,
-          child: IconButton(
-            onPressed: () => onRemovePressed(lineItem),
-            icon: const Icon(Icons.cancel),
-            visualDensity: VisualDensity.compact,
-            padding: EdgeInsets.zero,
-            alignment: Alignment.topRight,
-            constraints: const BoxConstraints(),
+        Visibility(
+          visible: onRemovePressed != null,
+          child: Positioned(
+            top: -2,
+            right: -2,
+            child: IconButton(
+              onPressed: onRemovePressed != null
+                  ? () => onRemovePressed!(lineItem)
+                  : null,
+              icon: const Icon(Icons.cancel),
+              visualDensity: VisualDensity.compact,
+              padding: EdgeInsets.zero,
+              alignment: Alignment.topRight,
+              constraints: const BoxConstraints(),
+            ),
           ),
         ),
       ],
